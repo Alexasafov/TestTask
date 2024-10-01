@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <button id="sendDataBtn">Отправить данные</button>
+
+    <script>
+        let mouseData = [];
+
+        document.addEventListener('mousemove', function(event) {
+            const x = event.clientX;
+            const y = event.clientY;
+            const time = new Date(Date.now());
+            // На сервер отправится UTC дата
+            mouseData.push({ x: x, y: y, time: time.toJSON() });
+        });
+
+        function sendData() {
+            const baseUrl = "@Context.Request.Scheme" + "://" + "@Context.Request.Host";
+            const url = baseUrl + "/add"
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(mouseData)
+            })
+            .then(response => {
+                    console.log('Резульатат отправки данных:', response);
+                mouseData = [];
+            })
+            .catch(error => {
+                console.log('Данные:', mouseData);
+                console.error('Ошибка при отправке данных:', error);
+            });
+        }
+
+        document.getElementById('sendDataBtn').addEventListener('click', sendData);
+    </script>
+</div>
